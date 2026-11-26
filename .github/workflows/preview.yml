@@ -7,7 +7,8 @@ name: Preview
 
 on:
   pull_request:
-    types: [opened, reopened, synchronize, labeled, unlabeled, closed]
+    # No "opened": a pull request created with the label also gets a "labeled" event.
+    types: [labeled, synchronize, reopened, unlabeled, closed]
 
 permissions:
   contents: read
@@ -16,6 +17,8 @@ env:
   LABEL: deploy-preview
   PREVIEW_NAME: pr-${{ github.event.pull_request.number }}
   COMMENT_MARKER: '<!-- bettercode-preview -->'
+  # The pull request's own commit (GITHUB_SHA is the temporary merge commit).
+  HEAD_SHA: ${{ github.event.pull_request.head.sha }}
 
 concurrency:
   # One run at a time per pull request, in order, so a delete never races a deploy.
@@ -57,7 +60,7 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
           npx wrangler preview --name "$PREVIEW_NAME" --json \
-            --message "PR #${{ github.event.pull_request.number }} at ${GITHUB_SHA::7}" > preview.out
+            --message "PR #${{ github.event.pull_request.number }} at ${HEAD_SHA::7}" > preview.out
           # Wrangler prints progress lines before the JSON document.
           url="$(sed -n '/^{/,$p' preview.out | jq -er '.preview.urls[0]')"
           echo "url=$url" >> "$GITHUB_OUTPUT"
@@ -79,7 +82,7 @@ jobs:
           body="$COMMENT_MARKER
           **Preview:** $URL
 
-          Updated for ${GITHUB_SHA::7}. Remove the \`$LABEL\` label (or close this pull request) to delete it."
+          Updated for ${HEAD_SHA::7}. Remove the \`$LABEL\` label (or close this pull request) to delete it."
           upsert_comment() {
             id="$(gh api "repos/$GITHUB_REPOSITORY/issues/$PR/comments" --paginate \
               --jq "[.[] | select(.body | startswith(\"$COMMENT_MARKER\"))][0].id // empty")"
