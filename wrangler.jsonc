@@ -18,6 +18,12 @@
     { "pattern": "bettercode.se", "custom_domain": true },
     { "pattern": "new.bettercode.se", "custom_domain": true }
   ],
+  // Production is only on the domains above, never on workers.dev...
   "workers_dev": false,
-  "preview_urls": false
+  // ...but pull requests labelled "deploy-preview" get a Workers Preview at
+  // pr-<number>-bettercode-website.max-wenzin.workers.dev (.github/workflows/preview.yml).
+  "preview_urls": true,
+  // Settings for those Previews. The site has no bindings, variables or secrets to isolate,
+  // so the block is empty; the static assets above are uploaded with each Preview.
+  "previews": {}
 }

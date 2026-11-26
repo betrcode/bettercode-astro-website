@@ -66,6 +66,23 @@ Every push to `main` is checked, built, tested and deployed by `.github/workflow
 Pull requests are checked but not deployed. The workflow needs two repository secrets:
 `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`.
 
+### Previews of pull requests
+
+Add the **`deploy-preview`** label to a pull request to get a Cloudflare Workers Preview of it at
+`https://pr-<number>-bettercode-website.max-wenzin.workers.dev`
+(`.github/workflows/preview.yml`). A bot comment on the pull request links to it, and every
+push updates it. Removing the label, or closing the pull request, deletes the Preview.
+Production is never touched.
+
+- Previews are public URLs. They are kept out of search engines: the build sets
+  `SEARCH_INDEXING=false` (noindex meta tag, `Disallow: /`), and Cloudflare adds
+  `X-Robots-Tag: noindex` to workers.dev Preview URLs.
+- Only branches of this repository get Previews; pull requests from forks get no secrets.
+- `preview_urls: true` and the (empty) `previews` block in `wrangler.jsonc` enable the feature.
+  The free plan keeps up to 100 Previews per Worker.
+- By hand: `npm run build` with `SEARCH_INDEXING=false`, then `npx wrangler preview --name <name>`,
+  and `npx wrangler preview delete --name <name> --skip-confirmation`.
+
 ### By hand
 
 `wrangler login` may point at another Cloudflare account, so deploy with the Better Code

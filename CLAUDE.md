@@ -27,6 +27,7 @@ Tests in `test/site.test.mjs` read `dist/`, so a stale build gives stale results
 - **By hand:** `wrangler login` on this machine points at a *different* Cloudflare account (Crisp). Always deploy with the Better Code credentials, and never print them:
   `set -a; . ~/.config/xfa2pdfa/cloudflare.env; set +a; npm run deploy`
 - **CI:** `.github/workflows/website.yml` checks, builds and tests on PRs and deploys on push to `main` (repo secrets `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`). Don't push to `main` unless asked: a push deploys.
+- **PR previews:** the `deploy-preview` label on a PR triggers `.github/workflows/preview.yml`, which builds with `SEARCH_INDEXING=false` and runs `wrangler preview --name pr-<n>` (Workers Previews, needs `preview_urls: true` and the `previews` block in `wrangler.jsonc`). Removing the label or closing the PR deletes it.
 - Live at https://www.bettercode.se (canonical). `bettercode.se` and `new.bettercode.se` are Custom Domains on the same Worker and are 301-redirected to www by a zone Redirect Rule (set in the Cloudflare dashboard/API, not in this repo). The deploy token has no DNS permission.
 
 ## Architecture that spans files

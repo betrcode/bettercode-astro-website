@@ -38,6 +38,7 @@ export const siteDescription =
 
 /**
  * Search engine switch. While false, every page has a noindex tag and robots.txt disallows
- * everything. True since launch on www.bettercode.se (2026-11-26).
+ * everything. On since launch on www.bettercode.se (2026-11-26); PR preview builds turn it off
+ * with SEARCH_INDEXING=false (.github/workflows/preview.yml).
  */
-export const searchIndexing = true;
+export const searchIndexing = import.meta.env.SEARCH_INDEXING !== 'false';
