@@ -1,0 +1,128 @@
+name: Preview
+
+# Pull requests with the "deploy-preview" label get a Cloudflare Workers Preview at
+# https://pr-<number>-bettercode-website.max-wenzin.workers.dev, updated on every push.
+# Removing the label or closing the pull request deletes the Preview.
+# Production (website.yml) is never touched.
+
+on:
+  pull_request:
+    # No "opened": a pull request created with the label also gets a "labeled" event.
+    types: [labeled, synchronize, reopened, unlabeled, closed]
+
+permissions:
+  contents: read
+
+env:
+  LABEL: deploy-preview
+  PREVIEW_NAME: pr-${{ github.event.pull_request.number }}
+  COMMENT_MARKER: '<!-- bettercode-preview -->'
+  # The pull request's own commit (GITHUB_SHA is the temporary merge commit).
+  HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+
+concurrency:
+  # One run at a time per pull request, in order, so a delete never races a deploy.
+  group: preview-${{ github.event.pull_request.number }}
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    # Only branches of this repository: pull requests from forks get no secrets.
+    if: >-
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.event.action != 'closed' && github.event.action != 'unlabeled' &&
+      contains(github.event.pull_request.labels.*.name, 'deploy-preview') &&
+      (github.event.action != 'labeled' || github.event.label.name == 'deploy-preview')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      deployments: write
+    environment:
+      name: preview
+      url: ${{ steps.preview.outputs.url }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npx -y npm@11.6.2 ci
+      # Previews are public: build with indexing off (noindex + robots.txt), on top of the
+      # X-Robots-Tag header Cloudflare adds to workers.dev Preview URLs.
+      - run: npm run build
+        env:
+          SEARCH_INDEXING: 'false'
+      - name: Deploy the Preview
+        id: preview
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          npx wrangler preview --name "$PREVIEW_NAME" --json \
+            --message "PR #${{ github.event.pull_request.number }} at ${HEAD_SHA::7}" > preview.out
+          # Wrangler prints progress lines before the JSON document.
+          url="$(sed -n '/^{/,$p' preview.out | jq -er '.preview.urls[0]')"
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+          echo "Preview: $url" >> "$GITHUB_STEP_SUMMARY"
+      - name: Check the Preview
+        env:
+          URL: ${{ steps.preview.outputs.url }}
+        run: |
+          for path in / /archive/ /2009/10/13/the-joel-test.html; do
+            curl -fsS --retry 5 --retry-delay 3 --retry-all-errors -o /dev/null "$URL$path" \
+              || { echo "::error::$URL$path is not served"; exit 1; }
+          done
+      - name: Comment on the pull request
+        env:
+          GH_TOKEN: ${{ github.token }}
+          URL: ${{ steps.preview.outputs.url }}
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          body="$COMMENT_MARKER
+          **Preview:** $URL
+
+          Updated for ${HEAD_SHA::7}. Remove the \`$LABEL\` label (or close this pull request) to delete it."
+          upsert_comment() {
+            id="$(gh api "repos/$GITHUB_REPOSITORY/issues/$PR/comments" --paginate \
+              --jq "[.[] | select(.body | startswith(\"$COMMENT_MARKER\"))][0].id // empty")"
+            if [ -n "$id" ]; then
+              gh api -X PATCH "repos/$GITHUB_REPOSITORY/issues/comments/$id" -f body="$1" > /dev/null
+            else
+              gh api "repos/$GITHUB_REPOSITORY/issues/$PR/comments" -f body="$1" > /dev/null
+            fi
+          }
+          upsert_comment "$body"
+
+  delete:
+    if: >-
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      ((github.event.action == 'closed' && contains(github.event.pull_request.labels.*.name, 'deploy-preview')) ||
+       (github.event.action == 'unlabeled' && github.event.label.name == 'deploy-preview'))
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npx -y npm@11.6.2 ci
+      - name: Delete the Preview
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: npx wrangler preview delete --name "$PREVIEW_NAME" --skip-confirmation || echo "::notice::No Preview named $PREVIEW_NAME to delete"
+      - name: Update the comment
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          id="$(gh api "repos/$GITHUB_REPOSITORY/issues/$PR/comments" --paginate \
+            --jq "[.[] | select(.body | startswith(\"$COMMENT_MARKER\"))][0].id // empty")"
+          [ -z "$id" ] && exit 0
+          gh api -X PATCH "repos/$GITHUB_REPOSITORY/issues/comments/$id" \
+            -f body="$COMMENT_MARKER
+          **Preview:** deleted. Add the \`$LABEL\` label again to bring it back." > /dev/null
