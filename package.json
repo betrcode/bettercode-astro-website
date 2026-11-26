@@ -1,0 +1,35 @@
+{
+  "name": "bettercode-website",
+  "type": "module",
+  "version": "1.0.0",
+  "private": true,
+  "description": "bettercode.se: the website of Better Code AB",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "start": "node scripts/start.mjs",
+    "dev": "astro dev",
+    "build": "astro build",
+    "check": "astro check",
+    "test": "node --test 'test/*.test.mjs'",
+    "verify": "npm run check && npm run build && npm test",
+    "preview": "npm run build && wrangler dev",
+    "deploy": "npm run verify && wrangler deploy",
+    "logo": "node scripts/build-logo.mjs"
+  },
+  "packageManager": "npm@11.6.2",
+  "dependencies": {
+    "@fontsource-variable/geist": "^5.3.0",
+    "@fontsource-variable/geist-mono": "^5.3.0",
+    "astro": "^7.4.13"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.12",
+    "harfbuzzjs": "^1.6.4",
+    "sharp": "^0.35.5",
+    "typescript": "^6.0.3",
+    "wawoff2": "^2.0.1",
+    "wrangler": "^4.168.0"
+  }
+}

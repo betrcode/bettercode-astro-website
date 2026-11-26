@@ -1,0 +1,68 @@
+---
+import Base from '../../layouts/Base.astro';
+import { formatDate, legacyArticles, legacyExcerpt, legacyPath } from '../../lib/legacy';
+
+// Not linked from the front page on purpose; it is in the sitemap so the articles stay findable.
+const articles = await legacyArticles();
+const first = articles.at(-1)!.data.date.getUTCFullYear();
+const last = articles[0].data.date.getUTCFullYear();
+---
+<Base
+  title="Archive"
+  description={`Posts from the old Better Code blog, ${first}–${last}, on agile, Jira, Oracle PL/SQL, Java and more.`}
+  path="/archive/"
+>
+  <section class="wrap archive">
+    <p class="eyebrow">Archive · {first}–{last}</p>
+    <h1>Posts from the old blog</h1>
+    <p class="lead measure">
+      Posts from the old Better Code blog, kept at their original addresses. Parts of them are likely out of date.
+    </p>
+    <ol class="list measure">
+      {
+        articles.map((article) => (
+          <li>
+            <time class="mono" datetime={article.data.date.toISOString().slice(0, 10)}>
+              {formatDate(article.data.date)}
+            </time>
+            <h2>
+              <a href={legacyPath(article)}>{article.data.title}</a>
+            </h2>
+            <p>{legacyExcerpt(article)}</p>
+          </li>
+        ))
+      }
+    </ol>
+  </section>
+</Base>
+
+<style>
+  .archive {
+    padding-block: var(--space-7) 0;
+  }
+  .archive h1 {
+    font-size: var(--step-3);
+  }
+  .list {
+    list-style: none;
+    padding: 0;
+    margin-top: var(--space-7);
+  }
+  .list li {
+    padding-block: var(--space-5);
+    border-top: 1px solid var(--rule);
+  }
+  .list time {
+    font-size: var(--step--1);
+    color: var(--muted);
+  }
+  .list h2 {
+    font-size: var(--step-1);
+    margin: var(--space-2) 0;
+  }
+  .list p {
+    margin: 0;
+    color: var(--muted);
+    font-size: var(--step--1);
+  }
+</style>

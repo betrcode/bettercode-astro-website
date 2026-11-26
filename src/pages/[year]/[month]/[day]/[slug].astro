@@ -1,0 +1,91 @@
+---
+import { render } from 'astro:content';
+import Base from '../../../../layouts/Base.astro';
+import { formatDate, legacyArticles, legacyExcerpt, legacyParams, legacyPath, type LegacyArticle } from '../../../../lib/legacy';
+
+// Each article keeps the exact URL the Jekyll blog gave it; build.format "preserve" adds the .html.
+export async function getStaticPaths() {
+  const articles = await legacyArticles();
+  return articles.map((article) => ({ params: legacyParams(article), props: { article } }));
+}
+
+interface Props {
+  article: LegacyArticle;
+}
+const { article } = Astro.props;
+const { Content } = await render(article);
+const published = article.data.date;
+---
+<Base title={article.data.title} description={legacyExcerpt(article)} path={legacyPath(article)} ogType="article">
+  <meta slot="head" property="article:published_time" content={published.toISOString()} />
+  <a class="nav-link" slot="nav" href="/archive/">Archive</a>
+
+  <article class="wrap article">
+    <header class="article-header measure">
+      <p class="eyebrow"><time datetime={published.toISOString().slice(0, 10)}>{formatDate(published)}</time></p>
+      <h1>{article.data.title}</h1>
+      <p class="archived" role="note">
+        From the old Better Code blog, kept as it was published. Parts of it are likely out of date.
+      </p>
+    </header>
+    <div class="prose measure">
+      <Content />
+    </div>
+    <footer class="article-footer measure">
+      <a href="/archive/">← All articles in the archive</a>
+      <a href="/">Better Code today →</a>
+    </footer>
+  </article>
+</Base>
+
+<style>
+  .nav-link {
+    font-size: var(--step--1);
+    color: var(--muted);
+  }
+  .article {
+    padding-block: var(--space-7) 0;
+  }
+  .article-header h1 {
+    font-size: var(--step-3);
+  }
+  .archived {
+    margin-top: var(--space-5);
+    padding: var(--space-3) var(--space-4);
+    border-left: 3px solid var(--rule);
+    background: var(--surface);
+    color: var(--muted);
+    font-size: var(--step--1);
+  }
+  .prose {
+    margin-top: var(--space-6);
+  }
+  .prose :global(h2) {
+    font-size: var(--step-2);
+    margin-top: var(--space-7);
+  }
+  .prose :global(h3) {
+    margin-top: var(--space-6);
+  }
+  .prose :global(li) {
+    margin-bottom: var(--space-1);
+  }
+  .prose :global(img) {
+    border-radius: var(--radius);
+  }
+  .prose :global(iframe) {
+    max-width: 100%;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius);
+  }
+  .article-footer {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+    margin-top: var(--space-7);
+    padding-top: var(--space-5);
+    border-top: 1px solid var(--rule);
+    font-size: var(--step--1);
+  }
+</style>

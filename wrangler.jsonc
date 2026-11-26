@@ -1,0 +1,18 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  // Static assets only: there is no Worker script, so every request is served from ./dist.
+  "name": "bettercode-website",
+  "compatibility_date": "2026-11-01",
+  "assets": {
+    "directory": "./dist",
+    // "none" serves /2011/03/09/slug.html as is. The other modes redirect it to /2011/03/09/slug,
+    // which would change the legacy article URLs. "/" and "/archive/" are mapped to
+    // their index.html files in public/_redirects instead.
+    "html_handling": "none",
+    "not_found_handling": "404-page"
+  },
+  // The preview domain. At launch, add bettercode.se and www.bettercode.se here (see README).
+  "routes": [{ "pattern": "new.bettercode.se", "custom_domain": true }],
+  "workers_dev": false,
+  "preview_urls": false
+}

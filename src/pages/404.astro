@@ -1,0 +1,20 @@
+---
+import Base from '../layouts/Base.astro';
+---
+<Base title="Page not found" description="This page does not exist." path="/404.html">
+  <section class="wrap missing">
+    <p class="eyebrow">404</p>
+    <h1>This test failed.</h1>
+    <p class="lead measure">There is no page at this address. It may have moved when the site was rebuilt.</p>
+    <p><a class="button" href="/">Go to the front page</a></p>
+  </section>
+</Base>
+
+<style>
+  .missing {
+    padding-block: var(--space-8);
+  }
+  .missing .eyebrow::before {
+    background: var(--red);
+  }
+</style>

@@ -1,0 +1,36 @@
+---
+import Symbol from './Symbol.astro';
+import { activeLogo, logoVariants } from '../brand';
+
+/** The lockup: symbol plus the "better code" wordmark as live text (see docs/design). */
+const { font } = logoVariants[activeLogo].wordmark;
+---
+<span class:list={['logo', `logo-${font}`]}>
+  <Symbol size="1.45em" />
+  <span class="wordmark">better code</span>
+</span>
+
+<style>
+  .logo {
+    display: inline-flex;
+    align-items: flex-end;
+    gap: 0.4em;
+    color: var(--ink);
+    line-height: 1;
+  }
+  .wordmark {
+    font-size: 1.25em;
+    letter-spacing: -0.02em;
+    line-height: 0.82;
+    white-space: nowrap;
+  }
+  .logo-mono .wordmark {
+    font-family: var(--font-mono);
+    font-weight: 520;
+  }
+  .logo-sans .wordmark {
+    font-family: var(--font-sans);
+    font-weight: 600;
+    letter-spacing: -0.025em;
+  }
+</style>

@@ -1,0 +1,14 @@
+/2009/10/13/the-joel-test.html
+/2010/09/13/new-website-for-rhbetong-se.html
+/2011/03/09/agreement-signed-with-crisp-ab.html
+/2011/03/25/ehcache-monitor-is-not-free.html
+/2011/04/23/unit-testing-plsql.html
+/2011/04/25/dont-repeat-yourself-in-plsql-parameters.html
+/2011/06/21/cheap-oracle-virtualization.html
+/2012/02/21/how-to-do-sprint-planning-using-jira.html
+/2012/03/06/agile-change-strategies.html
+/2012/03/11/reverse-phone-lookup-in-google-app-engine.html
+/2012/03/22/my-first-visual-agenda-inspired-by-gamestorming.html
+/2012/03/26/challenges-of-a-distributed-scrum-team.html
+/2013/04/16/blogging-on-the-crisp-blog.html
+/2016/03/13/migrated-from-wordpress-to-jekyll.html

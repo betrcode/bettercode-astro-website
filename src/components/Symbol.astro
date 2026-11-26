@@ -1,0 +1,28 @@
+---
+import { activeLogo, logoVariants, matrixCells, symbolSize } from '../brand';
+
+interface Props {
+  /** Rendered height in CSS units, e.g. "1.6rem". */
+  size?: string;
+  class?: string;
+}
+const { size = '1.5rem', class: className } = Astro.props;
+const variant = logoVariants[activeLogo];
+const box = symbolSize(variant);
+---
+<svg class:list={['symbol', className]} viewBox={`0 0 ${box} ${box}`} width={size} height={size} aria-hidden="true" focusable="false">
+  {matrixCells(variant).map((c) => <rect class={`cell-${c.colour}`} x={c.x} y={c.y} width={variant.cell} height={variant.cell} rx={variant.radius} />)}
+</svg>
+
+<style>
+  .symbol {
+    display: block;
+    flex: none;
+  }
+  .cell-green {
+    fill: var(--green);
+  }
+  .cell-red {
+    fill: var(--red);
+  }
+</style>

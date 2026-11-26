@@ -1,0 +1,126 @@
+---
+import Symbol from './Symbol.astro';
+import { activeLogo, logoVariants, matrixCells } from '../brand';
+
+/**
+ * The logo matrix as a tiny test run: when it scrolls into view, the cells start out pending
+ * and then resolve one by one into the green b and the red c. "Run again" replays it.
+ * Without JavaScript, or with reduced motion, the finished logo is shown as is.
+ */
+const cells = matrixCells(logoVariants[activeLogo]);
+const passed = cells.filter((c) => c.colour === 'green').length;
+const failed = cells.length - passed;
+---
+<figure class="test-run" data-test-run>
+  <Symbol size="9rem" class="test-run-matrix" />
+  <figcaption>
+    <span class="summary mono" aria-live="polite">
+      <span class="running-label">Running {cells.length} tests…</span>
+      <span class="result-label">{cells.length} tests, <span class="pass">{passed} passed</span>, <span class="fail">{failed} failed</span></span>
+    </span>
+    <span class="explain">A <span class="pass">b</span> and a <span class="fail">c</span> in a matrix of passing and failing tests.</span>
+    <button type="button" class="again mono" hidden>Run again</button>
+  </figcaption>
+</figure>
+
+<script>
+  import '../scripts/test-run.ts';
+</script>
+
+<style>
+  .test-run {
+    margin: 0;
+    display: grid;
+    justify-items: center;
+    gap: var(--space-5);
+    padding: var(--space-7) var(--space-5) var(--space-6);
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius);
+  }
+  figcaption {
+    display: grid;
+    justify-items: center;
+    gap: var(--space-3);
+    max-width: 19rem;
+    text-align: center;
+    font-size: var(--step--1);
+    color: var(--muted);
+  }
+  .summary {
+    color: var(--ink);
+  }
+  .pass {
+    color: var(--green-text);
+    font-weight: 600;
+  }
+  .fail {
+    color: var(--red-text);
+    font-weight: 600;
+  }
+  .running-label {
+    display: none;
+  }
+  .again {
+    padding: var(--space-1) var(--space-3);
+    font-size: var(--step--1);
+    color: var(--muted);
+    background: transparent;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius);
+    cursor: pointer;
+  }
+  .again:hover {
+    color: var(--ink);
+    border-color: var(--ink);
+  }
+
+  /* Set by the script, only when the visitor allows motion. */
+  .test-run:global(.is-armed) :global(rect) {
+    fill: var(--rule);
+  }
+  .test-run:global(.is-running) .running-label {
+    display: inline;
+  }
+  .test-run:global(.is-running) .result-label,
+  .test-run:global(.is-armed) .result-label {
+    display: none;
+  }
+  .test-run:global(.is-running) :global(rect) {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: resolve 0.45s cubic-bezier(0.3, 1.4, 0.5, 1) both;
+  }
+  .test-run:global(.is-running) :global(rect.cell-green) {
+    --to: var(--green);
+  }
+  .test-run:global(.is-running) :global(rect.cell-red) {
+    --to: var(--red);
+  }
+  /* A shuffled order, so the run looks like parallel tests finishing rather than a sweep. */
+  .test-run:global(.is-running) :global(rect:nth-child(1)) { animation-delay: 0.55s; }
+  .test-run:global(.is-running) :global(rect:nth-child(2)) { animation-delay: 1.35s; }
+  .test-run:global(.is-running) :global(rect:nth-child(3)) { animation-delay: 0.2s; }
+  .test-run:global(.is-running) :global(rect:nth-child(4)) { animation-delay: 1.05s; }
+  .test-run:global(.is-running) :global(rect:nth-child(5)) { animation-delay: 0.4s; }
+  .test-run:global(.is-running) :global(rect:nth-child(6)) { animation-delay: 1.6s; }
+  .test-run:global(.is-running) :global(rect:nth-child(7)) { animation-delay: 0.8s; }
+  .test-run:global(.is-running) :global(rect:nth-child(8)) { animation-delay: 1.2s; }
+  .test-run:global(.is-running) :global(rect:nth-child(9)) { animation-delay: 0.65s; }
+  .test-run:global(.is-running) :global(rect:nth-child(10)) { animation-delay: 1.85s; }
+  .test-run:global(.is-running) :global(rect:nth-child(n + 11)) { animation-delay: 2s; }
+
+  @keyframes resolve {
+    0% {
+      fill: var(--rule);
+      transform: scale(1);
+    }
+    40% {
+      transform: scale(0.6);
+    }
+    100% {
+      fill: var(--to);
+      transform: scale(1);
+    }
+  }
+</style>

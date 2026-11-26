@@ -1,0 +1,29 @@
+# Rules run before assets are looked up. html_handling is "none" in wrangler.jsonc (to keep the
+# legacy .html URLs exact), so directory URLs are mapped to their index.html here.
+
+# Directory pages
+/ /index.html 200
+/archive/ /archive/index.html 200
+/archive /archive/ 301
+
+# Pages of the old Jekyll site that now live on the front page
+/about/ /#company 301
+/about /#company 301
+/contact/ /#contact 301
+/contact /#contact 301
+
+# The old site (GitHub Pages) also answered legacy articles without .html
+/2009/10/13/the-joel-test /2009/10/13/the-joel-test.html 301
+/2010/09/13/new-website-for-rhbetong-se /2010/09/13/new-website-for-rhbetong-se.html 301
+/2011/03/09/agreement-signed-with-crisp-ab /2011/03/09/agreement-signed-with-crisp-ab.html 301
+/2011/03/25/ehcache-monitor-is-not-free /2011/03/25/ehcache-monitor-is-not-free.html 301
+/2011/04/23/unit-testing-plsql /2011/04/23/unit-testing-plsql.html 301
+/2011/04/25/dont-repeat-yourself-in-plsql-parameters /2011/04/25/dont-repeat-yourself-in-plsql-parameters.html 301
+/2011/06/21/cheap-oracle-virtualization /2011/06/21/cheap-oracle-virtualization.html 301
+/2012/02/21/how-to-do-sprint-planning-using-jira /2012/02/21/how-to-do-sprint-planning-using-jira.html 301
+/2012/03/06/agile-change-strategies /2012/03/06/agile-change-strategies.html 301
+/2012/03/11/reverse-phone-lookup-in-google-app-engine /2012/03/11/reverse-phone-lookup-in-google-app-engine.html 301
+/2012/03/22/my-first-visual-agenda-inspired-by-gamestorming /2012/03/22/my-first-visual-agenda-inspired-by-gamestorming.html 301
+/2012/03/26/challenges-of-a-distributed-scrum-team /2012/03/26/challenges-of-a-distributed-scrum-team.html 301
+/2013/04/16/blogging-on-the-crisp-blog /2013/04/16/blogging-on-the-crisp-blog.html 301
+/2016/03/13/migrated-from-wordpress-to-jekyll /2016/03/13/migrated-from-wordpress-to-jekyll.html 301

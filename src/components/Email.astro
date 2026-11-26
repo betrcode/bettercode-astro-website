@@ -1,0 +1,14 @@
+---
+import { person } from '../site';
+
+/**
+ * The email address, split in the HTML so simple scrapers don't find it whole.
+ * src/scripts/email.ts joins it into a mailto: link; without JavaScript it reads "name at domain".
+ */
+const { user, domain } = person.email;
+---
+<a class="email" href="#contact" data-email-user={user} data-email-domain={domain}>{user}<span class="at"> at </span>{domain}</a>
+
+<script>
+  import '../scripts/email.ts';
+</script>
