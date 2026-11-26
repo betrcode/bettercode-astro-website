@@ -11,8 +11,13 @@
     "html_handling": "none",
     "not_found_handling": "404-page"
   },
-  // The preview domain. At launch, add bettercode.se and www.bettercode.se here (see README).
-  "routes": [{ "pattern": "new.bettercode.se", "custom_domain": true }],
+  // www is the canonical host. bettercode.se and new.bettercode.se are attached too, and a
+  // Cloudflare Redirect Rule sends them to www (see README).
+  "routes": [
+    { "pattern": "www.bettercode.se", "custom_domain": true },
+    { "pattern": "bettercode.se", "custom_domain": true },
+    { "pattern": "new.bettercode.se", "custom_domain": true }
+  ],
   "workers_dev": false,
   "preview_urls": false
 }

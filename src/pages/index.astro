@@ -5,7 +5,7 @@ import Base from '../layouts/Base.astro';
 import TestRun from '../components/TestRun.astro';
 import ProfileIcon from '../components/ProfileIcon.astro';
 import Email from '../components/Email.astro';
-import { company, links, person, siteDescription } from '../site';
+import { company, experienceYears, links, person, siteDescription } from '../site';
 
 // The portrait is optional: drop a photo at src/assets/portrait.jpg (or .png/.webp) and it appears.
 const portraits = import.meta.glob<{ default: ImageMetadata }>('../assets/portrait.{jpg,jpeg,png,webp}', { eager: true });
@@ -22,7 +22,7 @@ const work = [
   },
   {
     title: 'Architecture',
-    text: 'Business-critical, transaction-heavy systems, often SaaS. I like designs that are easy to change, with test-driven development and continuous deployment so that a release is a non-event.',
+    text: 'Business-critical, transaction-heavy systems, often SaaS. I design decoupled, event-driven systems that keep the business logic apart from frameworks and infrastructure, and I pick modern tools when they earn their place. Built that way, a system stays easy to change and a release is a non-event.',
   },
   {
     title: 'Building teams',
@@ -49,7 +49,7 @@ const profiles = [
       <p class="eyebrow">{company.name} · {company.city} · since {company.founded}</p>
       <h1 id="hero-title">Better code, and the teams that write it</h1>
       <p class="lead measure">
-        I'm {person.name}, a software engineer and architect with more than {person.experienceYears} years of building
+        I'm {person.name}, a software engineer and architect with more than {experienceYears()} years of building
         business-critical systems. Better Code is my company.
       </p>
       <p class="actions">

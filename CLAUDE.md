@@ -27,7 +27,7 @@ Tests in `test/site.test.mjs` read `dist/`, so a stale build gives stale results
 - **By hand:** `wrangler login` on this machine points at a *different* Cloudflare account (Crisp). Always deploy with the Better Code credentials, and never print them:
   `set -a; . ~/.config/xfa2pdfa/cloudflare.env; set +a; npm run deploy`
 - **CI:** `.github/workflows/website.yml` checks, builds and tests on PRs and deploys on push to `main` (repo secrets `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`). Don't push to `main` unless asked: a push deploys.
-- The site is currently at https://new.bettercode.se (noindex). The launch checklist for moving bettercode.se and www is at the end of `README.md`.
+- Live at https://www.bettercode.se (canonical). `bettercode.se` and `new.bettercode.se` are Custom Domains on the same Worker and are 301-redirected to www by a zone Redirect Rule (set in the Cloudflare dashboard/API, not in this repo). The deploy token has no DNS permission.
 
 ## Architecture that spans files
 
@@ -51,7 +51,7 @@ Tests in `test/site.test.mjs` read `dist/`, so a stale build gives stale results
 - Per-element variation goes in CSS (e.g. `nth-child` delays in `TestRun.astro`), not in `style` attributes.
 - A test scans `dist/` for violations.
 
-**Launch switch:** `searchIndexing` in `src/site.ts`. While `false`, every page has `noindex` and `robots.txt` disallows all. Canonical URLs always use `https://www.bettercode.se`.
+**Indexing switch:** `searchIndexing` in `src/site.ts` (now `true`). When `false`, every page gets `noindex` and `robots.txt` disallows all. Canonical URLs always use `https://www.bettercode.se`.
 
 **Email** is never written whole into HTML: `Email.astro` splits it and `src/scripts/email.ts` joins it (a test checks).
 

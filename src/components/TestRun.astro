@@ -3,9 +3,10 @@ import Symbol from './Symbol.astro';
 import { activeLogo, logoVariants, matrixCells } from '../brand';
 
 /**
- * The logo matrix as a tiny test run: when it scrolls into view, the cells start out pending
- * and then resolve one by one into the green b and the red c. "Run again" replays it.
- * Without JavaScript, or with reduced motion, the finished logo is shown as is.
+ * The logo matrix as a tiny test run: the cells start out pending and resolve one by one into
+ * the green b and the red c. It plays once when it scrolls into view, and the button replays it.
+ * With reduced motion it never plays by itself, and the button plays a plain colour fade.
+ * Without JavaScript the finished logo is shown and the button stays hidden.
  */
 const cells = matrixCells(logoVariants[activeLogo]);
 const passed = cells.filter((c) => c.colour === 'green').length;
@@ -19,7 +20,7 @@ const failed = cells.length - passed;
       <span class="result-label">{cells.length} tests, <span class="pass">{passed} passed</span>, <span class="fail">{failed} failed</span></span>
     </span>
     <span class="explain">A <span class="pass">b</span> and a <span class="fail">c</span> in a matrix of passing and failing tests.</span>
-    <button type="button" class="again mono" hidden>Run again</button>
+    <button type="button" class="again mono" hidden>▶ Run the tests</button>
   </figcaption>
 </figure>
 
@@ -70,7 +71,11 @@ const failed = cells.length - passed;
     border-radius: var(--radius);
     cursor: pointer;
   }
-  .again:hover {
+  .again:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+  .again:hover:not(:disabled) {
     color: var(--ink);
     border-color: var(--ink);
   }
@@ -109,6 +114,22 @@ const failed = cells.length - passed;
   .test-run:global(.is-running) :global(rect:nth-child(9)) { animation-delay: 0.65s; }
   .test-run:global(.is-running) :global(rect:nth-child(10)) { animation-delay: 1.85s; }
   .test-run:global(.is-running) :global(rect:nth-child(n + 11)) { animation-delay: 2s; }
+
+  /* Asked for by the visitor's click, so it plays, but without movement. */
+  @media (prefers-reduced-motion: reduce) {
+    .test-run:global(.is-running) :global(rect) {
+      animation-name: resolve-fade;
+      animation-timing-function: ease-out;
+    }
+  }
+  @keyframes resolve-fade {
+    from {
+      fill: var(--rule);
+    }
+    to {
+      fill: var(--to);
+    }
+  }
 
   @keyframes resolve {
     0% {

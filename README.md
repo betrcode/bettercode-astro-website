@@ -56,7 +56,9 @@ When adding a page in a new folder, add its `index.html` rewrite to `public/_red
 ## Deploy
 
 The site runs on the Cloudflare account of Better Code, as the Worker `bettercode-website`.
-It is currently served at **https://new.bettercode.se** (a Custom Domain, see `wrangler.jsonc`).
+It is served at **https://www.bettercode.se**. `bettercode.se` and `new.bettercode.se` are Custom Domains on the
+same Worker (see `wrangler.jsonc`), and a Cloudflare Redirect Rule on the zone sends them to `www` with a 301,
+keeping the path. The zone also has *Always Use HTTPS* on.
 
 ### Automatically
 
@@ -77,15 +79,16 @@ npm run deploy
 Never commit credentials: this repository is public. `.gitignore` excludes `.env*`,
 `.dev.vars*` and `cloudflare.env`.
 
-## Launch checklist (moving bettercode.se and www.bettercode.se)
+## Launch (done 2026-11-26)
 
-1. Pick the logo option (`activeLogo` in `src/brand.ts`), run `npm run logo`.
-2. Set `searchIndexing = true` in `src/site.ts`.
-3. In `wrangler.jsonc`, add Custom Domains for `www.bettercode.se` and `bettercode.se`. Existing
-   DNS records for those names (today they point at GitHub Pages) must be removed first, or
-   Cloudflare refuses to attach the Custom Domain.
-4. Redirect `bettercode.se` to `https://www.bettercode.se` (a Cloudflare Redirect Rule), since
-   canonical URLs use `www`, like the old site.
-5. Decide whether to keep `new.bettercode.se` (redirect it to `www`) or remove it.
-6. Remove the `CNAME` file and the custom domain from the old GitHub Pages repository.
-7. Submit `https://www.bettercode.se/sitemap.xml` in Google Search Console.
+The site replaced the old GitHub Pages site on 2026-11-26:
+
+- `searchIndexing = true` in `src/site.ts`.
+- The GitHub Pages DNS records (four `A` records on `bettercode.se`, `CNAME www → betrcode.github.io`) were
+  removed and both hostnames attached to the Worker as Custom Domains. Mail records (Proton) were not touched.
+- Redirect Rule: `bettercode.se` and `new.bettercode.se` → `https://www.bettercode.se/<path>` (301).
+
+Still to do by hand:
+
+1. Remove the `CNAME` file / custom domain setting from the old `betrcode.github.io` repository.
+2. Submit `https://www.bettercode.se/sitemap.xml` in Google Search Console.
